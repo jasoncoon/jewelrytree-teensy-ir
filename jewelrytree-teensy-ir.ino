@@ -6,12 +6,13 @@
 #error "Requires FastLED 3.1 or later; check github for latest code."
 #endif
 
+#define STATUS_LED_PIN 13
+
 #define LED_PIN     0
-// #define CLOCK_PIN   2
 #define IR_RECV_PIN 12
 #define COLOR_ORDER RGB
 #define CHIPSET     WS2811
-#define NUM_LEDS    16
+#define NUM_LEDS    32
 
 const uint8_t brightnessCount = 5;
 uint8_t brightnessMap[brightnessCount] = { 16, 32, 64, 128, 255 };
@@ -43,25 +44,27 @@ int currentIndex = 0;
 PatternFunctionPointer currentPattern;
 
 const PatternList patterns = {
-    rainbow,
-    rainbowWithGlitter,
-    confetti,
-    bpm,
-    juggle,
-    sinelon,
-    hueCycle,
-    pride,
-    colorWaves,
-    rainbowTwinkles,
     snowTwinkles,
     cloudTwinkles,
     incandescentTwinkles,
+    rainbowTwinkles,
+    colorWaves,
+    pride,
+    rainbow,
+    rainbowWithGlitter,
+    confetti,
+    hueCycle,
+    bpm,
+    juggle,
+    sinelon,
     showSolidColor
 };
 
 const int patternCount = ARRAY_SIZE(patterns);
 
 void setup() {
+  pinMode(STATUS_LED_PIN, OUTPUT);
+  digitalWrite(STATUS_LED_PIN, HIGH);
 //  delay(500); // sanity delay
   Serial.begin(9600);
   Serial.println("setup start");
@@ -69,7 +72,7 @@ void setup() {
   loadSettings();
 
   FastLED.addLeds<CHIPSET, LED_PIN, COLOR_ORDER>(leds, NUM_LEDS);
-//  FastLED.setCorrection(Typical8mmPixel);
+  FastLED.setCorrection(Typical8mmPixel);
   FastLED.setBrightness(brightness);
   FastLED.setDither(brightness < 255);
 
@@ -87,6 +90,10 @@ void setup() {
 }
 
 void loop() {
+  EVERY_N_SECONDS(1) {
+    digitalWrite(STATUS_LED_PIN, HIGH);
+  }
+  
   // Add entropy to random number generator; we use a lot of it.
   random16_add_entropy(random());
   
